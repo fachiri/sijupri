@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard'
 import Activity from './pages/Activitiy'
 import Gallery from './pages/Gallery'
 import Profile from './pages/Profile'
+import AddActivity from './pages/AddActivity';
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
         <Route path="/kegiatan" element={<Activity />}/>
         <Route path="/galeri" element={<Gallery />}/>
         <Route path="/profil" element={<Profile />}/>
+        <Route path="/kegiatan/tambah" element={<AddActivity />}/>
       </Routes>
     </Router>
   )
