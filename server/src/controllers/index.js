@@ -1,5 +1,9 @@
 const express = require('express');
 const auth = require('./auth.controller.js');
+const user = require('./user.controller.js');
+const roles = require('./role.controller.js');
+const admin = require('./admin.controller.js');
+const { verifyToken, isAdmin } = require('./../middlewares/auth.middleware.js')
 
 const router = express.Router();
 
@@ -10,5 +14,8 @@ router.get('/', (req, res) => {
 });
 
 router.use('/auth', auth);
+router.use('/roles', roles);
+router.use('/user', verifyToken, user);
+router.use('/admin', [verifyToken, isAdmin], admin);
 
 module.exports = router;

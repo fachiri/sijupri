@@ -1,29 +1,25 @@
 module.exports = (sequelize, Sequelize) => {
-    const User = sequelize.define("users", {
+    const Group = sequelize.define("groups", {
         uuid: {
             type: Sequelize.UUID,
             allowNull: false,
             defaultValue: Sequelize.UUIDV4
         },
-        name: {
+        location: {
             type: Sequelize.STRING,
             allowNull: false,
         },
-        username: {
-            type: Sequelize.STRING(20),
-            allowNull: false,
-        },
-        password: {
+        pembimbing1: {
             type: Sequelize.STRING,
             allowNull: false,
         },
-        email: {
+        pembimbing2: {
             type: Sequelize.STRING
         },
-        avatar: {
+        pembimbing3: {
             type: Sequelize.STRING
-        }
+        },
     });
 
-    return User;
+    return Group;
 };

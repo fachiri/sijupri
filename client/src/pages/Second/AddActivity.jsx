@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons'
-import Header from '../components/Header'
-import { Alert } from 'flowbite-react';
+import Header from '../../components/Header'
 import { HiInformationCircle } from 'react-icons/hi';
+import SecondLayout from '../../layouts/SecondLayout';
+import Alert from '../../components/Alert';
 
-const AddActivity = () => {
+const AddActivity = ({ verifyToken }) => {
   const [formData, setFormData] = useState({
     type: '',
     start: '00:00',
@@ -74,31 +75,18 @@ const AddActivity = () => {
     }
   };
 
-
   return (
     <>
-      <Header
+      <SecondLayout
         title="Tambah Kegiatan"
         backButton={true}
         rightButtonLink="/bantuan/tambah-kegiatan"
         rightButtonIcon={
           <FontAwesomeIcon icon={faQuestionCircle} className="w-4 h-4 text-[#fffffe]" />
         }
-      />
-      <main className="max-w-lg mx-auto px-5 sm:px-2 mt-5">
-        {showAlert && (
-          <Alert
-            color="failure"
-            onDismiss={() => setShowAlert(false)}
-            icon={HiInformationCircle}
-          >
-            <span>
-              <p>
-                {alertMessage}
-              </p>
-            </span>
-          </Alert>
-        )}
+        verifyToken={verifyToken}
+      >
+        {showAlert && <Alert color="failure" onDismiss={() => setShowAlert(false)} alertMessage={alertMessage} />}
         <section className="mt-10">
           <form encType="multipart/form-data" onSubmit={handleSubmit}>
             <div className="relative z-0 w-full mb-6 group">
@@ -267,7 +255,7 @@ const AddActivity = () => {
             <button type="submit" className="text-white bg-main-0 hover:bg-main-1 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-main-0 dark:hover:bg-main dark:focus:ring-blue-800">Submit</button>
           </form>
         </section>
-      </main>
+      </SecondLayout>
     </>
   )
 }

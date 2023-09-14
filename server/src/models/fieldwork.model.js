@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const User = sequelize.define("users", {
+    const Fieldwork = sequelize.define("fieldworks", {
         uuid: {
             type: Sequelize.UUID,
             allowNull: false,
@@ -9,21 +9,15 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             allowNull: false,
         },
-        username: {
-            type: Sequelize.STRING(20),
-            allowNull: false,
-        },
-        password: {
+        type: {
             type: Sequelize.STRING,
             allowNull: false,
         },
-        email: {
-            type: Sequelize.STRING
+        periode: {
+            type: Sequelize.STRING,
+            allowNull: false,
         },
-        avatar: {
-            type: Sequelize.STRING
-        }
     });
 
-    return User;
+    return Fieldwork;
 };
