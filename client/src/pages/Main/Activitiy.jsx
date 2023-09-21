@@ -1,9 +1,37 @@
+import { useEffect, useState } from 'react'
 import MainLayout from '../../layouts/MainLayout'
+import Alert from '../../components/Alert';
+import axios from './../../utils/axios'
+import { dateIndo, timeJamMenit } from '../../utils/helper';
 
 const Activity = ({ verifyToken }) => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [journals, setJournals] = useState({})
+  const [showAlert, setShowAlert] = useState({ show: false, message: '' })
+
+  useEffect(() => {
+    getJournals()
+  }, [])
+
+  const getJournals = async () => {
+    try {
+      setIsLoading(true)
+      const { data } = await axios.get(`/journal/all/${JSON.parse(localStorage.getItem('userData')).uuid}`)
+      setJournals(data.data)
+    } catch (error) {
+      setShowAlert({ show: true, message: error.response?.data?.message || error.message })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <>
-      <MainLayout title="KEGIATAN" verifyToken={verifyToken}>
+      <MainLayout
+        title="KEGIATAN" verifyToken={verifyToken}
+        isLoading={isLoading}
+      >
+        {showAlert.show && <Alert color="failure" onDismiss={() => setShowAlert({ show: false })} alertMessage={showAlert.message} />}
         <main className="max-w-lg mx-auto px-5 sm:px-2 mt-5 pb-20">
           <ul className="text-sm mb-6 font-medium text-center text-gray-500 divide-x divide-gray-200 rounded-lg shadow flex dark:divide-gray-700 dark:text-gray-400">
             <li className="w-full">
@@ -18,75 +46,30 @@ const Activity = ({ verifyToken }) => {
           </ul>
           <section>
             <div>
-              <div className="mb-3">
-                <p className="text-sm text-gray-500 font-medium">Hari ini</p>
-              </div>
-              <div className="flex space-x-5 mb-5">
-                <img className="h-max w-1/3 rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg" alt="Activity Image" />
-                <div>
-                  <h3 className="text-xl font-bold mb-1 line-clamp-1">Apel Pagi</h3>
-                  <div className="mb-1">
-                    <span className="bg-purple-100 text-purple-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-purple-900 dark:text-purple-300">
-                      Magang
-                    </span>
-                    <span className="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400">
-                      07:00 - 07:35
-                    </span>
+              {Object.keys(journals).map((key, idx) => (
+                <div key={idx}>
+                  <div className="mb-3">
+                    <p className="text-sm text-gray-500 font-medium">{dateIndo(key)}</p>
                   </div>
-                  <p className="text-sm line-clamp-3">Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum, modi, odio magni, omnis expedita eum molestiae corrupti consectetur dolor doloribus beatae veritatis minima dicta voluptates rem alias quae saepe! Voluptatem.</p>
+                  {journals[key].map(({ name, desc, start, end, group }, idx) => (
+                    <div key={idx} className="flex space-x-5 mb-5">
+                      <img className="h-max w-1/3 rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg" alt="Activity Image" />
+                      <div>
+                        <h3 className="text-xl font-bold mb-1 line-clamp-1">{name}</h3>
+                        <div className="mb-1">
+                          <span className="bg-purple-100 text-purple-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-purple-900 dark:text-purple-300">
+                            {group.fieldwork.type}
+                          </span>
+                          <span className="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400">
+                            {timeJamMenit(start)} - {timeJamMenit(end)}
+                          </span>
+                        </div>
+                        <p className="text-sm line-clamp-3">{desc}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-              <div className="flex space-x-5 mb-5">
-                <img className="h-max w-1/3 rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-1.jpg" alt="Activity Image" />
-                <div>
-                  <h3 className="text-xl font-bold mb-1 line-clamp-1">Lorem ipsum dolor sit amet consectetur</h3>
-                  <div className="mb-1">
-                    <span className="bg-purple-100 text-purple-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-purple-900 dark:text-purple-300">
-                      Magang
-                    </span>
-                    <span className="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400">
-                      07:00 - 07:35
-                    </span>
-                  </div>
-                  <p className="text-sm line-clamp-3">Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum, modi, odio magni, omnis expedita eum molestiae corrupti consectetur dolor doloribus beatae veritatis minima dicta voluptates rem alias quae saepe! Voluptatem.</p>
-                </div>
-              </div>
-              <div className="mb-3">
-                <p className="text-sm text-gray-500 font-medium">Kemarin</p>
-              </div>
-              <div className="flex space-x-5 mb-5">
-                <img className="h-max w-1/3 rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-2.jpg" alt="Activity Image" />
-                <div>
-                  <h3 className="text-xl font-bold mb-1 line-clamp-1">Lorem ipsum dolor sit amet consectetur</h3>
-                  <div className="mb-1">
-                    <span className="bg-purple-100 text-purple-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-purple-900 dark:text-purple-300">
-                      Magang
-                    </span>
-                    <span className="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400">
-                      07:00 - 07:35
-                    </span>
-                  </div>
-                  <p className="text-sm line-clamp-3">Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum, modi, odio magni, omnis expedita eum molestiae corrupti consectetur dolor doloribus beatae veritatis minima dicta voluptates rem alias quae saepe! Voluptatem.</p>
-                </div>
-              </div>
-              <div className="mb-3">
-                <p className="text-sm text-gray-500 font-medium">04 September 2023</p>
-              </div>
-              <div className="flex space-x-5 mb-5">
-                <img className="h-max w-1/3 rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-3.jpg" alt="Activity Image" />
-                <div>
-                  <h3 className="text-xl font-bold mb-1 line-clamp-1">Lorem ipsum dolor sit amet consectetur</h3>
-                  <div className="mb-1">
-                    <span className="bg-purple-100 text-purple-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-purple-900 dark:text-purple-300">
-                      KKN
-                    </span>
-                    <span className="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400">
-                      07:00 - 07:35
-                    </span>
-                  </div>
-                  <p className="text-sm line-clamp-3">Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum, modi, odio magni, omnis expedita eum molestiae corrupti consectetur dolor doloribus beatae veritatis minima dicta voluptates rem alias quae saepe! Voluptatem.</p>
-                </div>
-              </div>
+              ))}
             </div>
           </section>
         </main>

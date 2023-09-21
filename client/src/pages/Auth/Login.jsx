@@ -11,26 +11,35 @@ const Login = ({ verifyToken }) => {
     role: '',
     username: '',
     password: ''
-  });
-  const [roles, setRoles] = useState([]);
-  const [showAlert, setShowAlert] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [alertMessage, setShowAlertMessage] = useState(null);
-  const navigate = useNavigate();
+  })
+  const [roles, setRoles] = useState([])
+  const [showAlert, setShowAlert] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [alertMessage, setShowAlertMessage] = useState(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchRoles()
   }, [])
 
   const fetchRoles = async () => {
-    const { data } = await axios.get('/roles');
-    setRoles(data.data)
+    try {
+      setIsLoading(true)
+      const { data } = await axios.get('/roles')
+      setRoles(data.data)
+    } catch (error) {
+      setShowAlertMessage(error.response?.data?.message || error.message)
+      setShowAlert(true)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleLogin = async (e) => {
-    e.preventDefault();
     try {
+      e.preventDefault()
       setIsLoading(true)
+
       const { data } = await axios.post('/auth/login', {
         role: formData.role,
         username: formData.username,

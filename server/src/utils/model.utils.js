@@ -21,6 +21,14 @@ const modelUtils = {
       default:
         throw { code: 400, message: 'Role tidak valid.' }
     }
+  },
+  getStudentIdByUser: async (uuid) => {
+    const user = await db.User.findOne({
+      where: { uuid },
+      include: db.Student
+    })
+    
+    return user.student.id
   }
 }
 

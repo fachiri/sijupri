@@ -2,8 +2,9 @@ import Navigation from '../components/Navigation'
 import Header from '../components/Header'
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Loader from '../components/Loader';
 
-const SecondLayout = ({ children, title, backButton, rightButtonLink, rightButtonIcon, verifyToken }) => {
+const SecondLayout = ({ children, title, backButton, rightButtonLink, rightButtonIcon, verifyToken, isLoading }) => {
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -18,6 +19,7 @@ const SecondLayout = ({ children, title, backButton, rightButtonLink, rightButto
 
   return (
     <>
+      {isLoading && <Loader />}
       <Header 
         title={title} 
         backButton={backButton} 

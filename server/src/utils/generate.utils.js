@@ -9,6 +9,12 @@ const generateUtils = {
     }
 
     return result;
+  },
+  randomFilename: (originalname) => {
+    const extension = originalname.split('.').pop()
+    const uniqueSuffix = `${Date.now()}${Math.round(Math.random() * 1E9)}`
+
+    return `${uniqueSuffix}.${extension}`
   }
 }
 

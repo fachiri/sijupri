@@ -1,14 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons'
-import Header from '../../components/Header'
-import { HiInformationCircle } from 'react-icons/hi';
 import SecondLayout from '../../layouts/SecondLayout';
 import Alert from '../../components/Alert';
+import axios from './../../utils/axios'
 
 const AddActivity = ({ verifyToken }) => {
   const [formData, setFormData] = useState({
-    type: '',
+    groupId: '',
     start: '00:00',
     end: '00:00',
     name: '',
@@ -16,64 +15,89 @@ const AddActivity = ({ verifyToken }) => {
     location: '',
     outcome: '',
     note: '',
-  });
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setShowAlertMessage] = useState(null);
+  })
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertMessage, setShowAlertMessage] = useState(null)
+  const [userFieldWorks, setUserFieldWorks] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    getUserFieldwork()
+  }, [])
+
+  const getUserFieldwork = async () => {
+    try {
+      setIsLoading(true)
+      const userData = JSON.parse(localStorage.getItem('userData'))
+      const { data } = await axios.get(`/user/${userData.uuid}/groups`)
+      setUserFieldWorks(data.data)
+    } catch (error) {
+      setShowAlertMessage(error.response?.data?.message || error.message)
+      setShowAlert(true)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    console.log(formData)
-    return
-
     try {
-      const response = await fetch('URL_SERVER_ANDA', {
-        method: 'POST', // Ganti dengan metode HTTP yang sesuai
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      e.preventDefault()
+      setIsLoading(true)
+
+      const formDataObject = new FormData();
+      const fields = ['groupId', 'start', 'end', 'name', 'desc', 'location', 'outcome', 'note'];
+
+      fields.forEach(field => {
+        formDataObject.append(field, formData[field]);
       });
 
-      if (response.ok) {
-        // Data berhasil dikirim, Anda bisa melakukan sesuatu seperti mengarahkan pengguna ke halaman lain.
-      } else {
-        // Tangani kesalahan jika ada
-        console.error('Gagal mengirim data');
-      }
+      formDataObject.append('file', selectedFile)
+      formDataObject.append('userId', JSON.parse(localStorage.getItem('userData')).uuid)
+
+      const response = await axios.post('journal/add', formDataObject, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        }
+      })
+
+      console.log(response)
     } catch (error) {
-      console.error('Terjadi kesalahan:', error);
+      setShowAlertMessage(error.response?.data?.message || error.message)
+      setShowAlert(true)
+      window.scrollTo(0, 0)
+    } finally {
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleFileUpload = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]
 
     if (file) {
-      const allowedTypes = ["image/svg+xml", "image/png", "image/jpeg", "image/gif"];
+      const allowedTypes = ["image/svg+xml", "image/png", "image/jpeg", "image/gif"]
       if (!allowedTypes.includes(file.type)) {
         setShowAlertMessage('Jenis file tidak didukung. Pilih file dalam format SVG, PNG, JPG, atau GIF.')
         setShowAlert(true)
-        e.target.value = null;
-        setSelectedFile(null);
-        window.scrollTo(0, 0);
-        return;
+        e.target.value = null
+        setSelectedFile(null)
+        window.scrollTo(0, 0)
+        return
       }
 
-      const maxSize = 2 * 1024 * 1024;
+      const maxSize = 2 * 1024 * 1024
       if (file.size > maxSize) {
         setShowAlertMessage('Ukuran file terlalu besar. Maksimal 2MB.')
         setShowAlert(true)
-        e.target.value = null;
-        setSelectedFile(null);
-        window.scrollTo(0, 0);
-        return;
+        e.target.value = null
+        setSelectedFile(null)
+        window.scrollTo(0, 0)
+        return
       }
 
-      setSelectedFile(file);
+      setSelectedFile(file)
     }
-  };
+  }
 
   return (
     <>
@@ -85,23 +109,27 @@ const AddActivity = ({ verifyToken }) => {
           <FontAwesomeIcon icon={faQuestionCircle} className="w-4 h-4 text-[#fffffe]" />
         }
         verifyToken={verifyToken}
+        isLoading={isLoading}
       >
         {showAlert && <Alert color="failure" onDismiss={() => setShowAlert(false)} alertMessage={alertMessage} />}
         <section className="mt-10">
           <form encType="multipart/form-data" onSubmit={handleSubmit}>
             <div className="relative z-0 w-full mb-6 group">
-              <label htmlFor="type" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-main-0 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Jenis Kegiatan</label>
+              <label htmlFor="groupId" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-main-0 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Jenis Kegiatan</label>
               <select
-                id="type"
-                name="type"
+                id="groupId"
+                name="groupId"
                 className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-main-0 peer"
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, groupId: e.target.value })}
+                value={formData.groupId}
                 required
               >
-                <option value="">Pilih Jenis Kegiatan</option>
-                <option value="Magang">Magang</option>
-                <option value="KKN">KKN</option>
+                <option value="" hidden>Pilih Jenis Kegiatan</option>
+                {userFieldWorks.map((userFieldWork, key) => (
+                  <option key={key} value={userFieldWork.uuid}>
+                    {userFieldWork.fieldwork.name} ({userFieldWork.fieldwork.periode})
+                  </option>
+                ))}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-5">

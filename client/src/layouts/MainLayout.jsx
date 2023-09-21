@@ -6,21 +6,15 @@ import Loader from '../components/Loader';
 
 const MainLayout = ({ children, title, verifyToken, isLoading }) => {
   const navigate = useNavigate()
-  // const [isLoading, setLoading] = useState(false)
 
   useEffect(() => {
     const checkToken = async () => {
-      const isTokenValid = await verifyToken();
+      const isTokenValid = await verifyToken()
       if (!isTokenValid) {
         return navigate("/login")
       }
-    };
-    try {
-      // setLoading(true)
-      checkToken();
-    } finally {
-      // setLoading(false)
     }
+    checkToken()
   }, [])
 
   return (

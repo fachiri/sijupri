@@ -22,6 +22,7 @@ db.Administrator = require("./administrator.model.js")(sequelize, Sequelize)
 db.Role = require("./role.model.js")(sequelize, Sequelize)
 db.Fieldwork = require("./fieldwork.model.js")(sequelize, Sequelize)
 db.Group = require("./group.model.js")(sequelize, Sequelize)
+db.Journal = require("./journal.model.js")(sequelize, Sequelize)
 
 db.User.hasOne(db.Student, { onDelete: 'CASCADE' })
 db.User.hasOne(db.Lecturer, { onDelete: 'CASCADE' })
@@ -31,6 +32,10 @@ db.Lecturer.belongsTo(db.User, { onDelete: 'CASCADE' })
 db.Administrator.belongsTo(db.User, { onDelete: 'CASCADE' })
 db.Fieldwork.hasMany(db.Group)
 db.Group.belongsTo(db.Fieldwork, { onDelete: 'CASCADE' })
+db.Group.hasMany(db.Journal)
+db.Journal.belongsTo(db.Group, { onDelete: 'CASCADE' })
+db.Student.hasMany(db.Journal)
+db.Journal.belongsTo(db.Student, { onDelete: 'CASCADE' })
 
 db.Group.belongsToMany(db.Student, { through: 'GroupStudent' });
 db.Student.belongsToMany(db.Group, { through: 'GroupStudent' });

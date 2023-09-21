@@ -4,7 +4,6 @@ const multer = require('multer');
 const xlsx = require('xlsx');
 const bcrypt = require('bcryptjs');
 const { randomString } = require('../utils/generate.utils');
-const { model } = require('mongoose');
 
 const router = express.Router()
 
