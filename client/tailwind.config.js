@@ -11,9 +11,12 @@ export default {
         0: '#6246ea',
         1: '#5744b4'
       },
+      'secondary': {
+        0: '#E0F0FF'
+      },
       fontSize: {
         xxs: '0.3rem',
-      }
+      },
     },
     extend: {
       fontFamily: {
