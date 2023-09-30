@@ -1,4 +1,7 @@
 const db = require('./../models')
+const fs = require('fs')
+const path = require('path')
+const { app } = require('./../config/keys')
 
 const modelUtils = {
   getModelByRole: (role) => {
@@ -29,6 +32,16 @@ const modelUtils = {
     })
     
     return user.student.id
+  },
+  getImageSource: async (image) => {
+    try {
+      const imagePath = path.join(__dirname, `../../public/uploads/${image}`);
+      await fs.promises.access(imagePath, fs.constants.F_OK);
+      return `${app.url}/uploads/${image}`;
+    } catch (error) {
+      console.log(error);
+      return `${app.url}/assets/default-image.jpg`;
+    }
   }
 }
 

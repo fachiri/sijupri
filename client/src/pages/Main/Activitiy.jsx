@@ -3,9 +3,10 @@ import MainLayout from '../../layouts/MainLayout'
 import Alert from '../../components/Alert';
 import axios from './../../utils/axios'
 import { dateIndo, timeJamMenit } from '../../utils/helper';
+import { Link } from 'react-router-dom';
 
 const Activity = ({ verifyToken }) => {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [journals, setJournals] = useState({})
   const [showAlert, setShowAlert] = useState({ show: false, message: '' })
 
@@ -51,9 +52,9 @@ const Activity = ({ verifyToken }) => {
                   <div className="mb-3">
                     <p className="text-sm text-gray-500 font-medium">{dateIndo(key)}</p>
                   </div>
-                  {journals[key].map(({ name, desc, start, end, group }, idx) => (
-                    <div key={idx} className="flex space-x-5 mb-5">
-                      <img className="h-max w-1/3 rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg" alt="Activity Image" />
+                  {journals[key].map(({ uuid, name, desc, start, end, group, image }, idx) => (
+                    <Link to={"/kegiatan/"+uuid} key={idx} className="flex space-x-5 mb-5">
+                      <img className="w-32 h-32 rounded-lg border object-cover" src={image} alt="Dokumentasi Aktivitas" />
                       <div>
                         <h3 className="text-xl font-bold mb-1 line-clamp-1">{name}</h3>
                         <div className="mb-1">
@@ -66,7 +67,7 @@ const Activity = ({ verifyToken }) => {
                         </div>
                         <p className="text-sm line-clamp-3">{desc}</p>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ))}

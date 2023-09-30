@@ -20,7 +20,7 @@ const AddActivity = ({ verifyToken }) => {
   const [showAlert, setShowAlert] = useState(false)
   const [alertMessage, setShowAlertMessage] = useState(null)
   const [userFieldWorks, setUserFieldWorks] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     getUserFieldwork()
@@ -122,7 +122,6 @@ const AddActivity = ({ verifyToken }) => {
                 className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-main-0 peer"
                 onChange={(e) => setFormData({ ...formData, groupId: e.target.value })}
                 value={formData.groupId}
-                required
               >
                 <option value="" hidden>Pilih Jenis Kegiatan</option>
                 {userFieldWorks.map((userFieldWork, key) => (
@@ -141,7 +140,6 @@ const AddActivity = ({ verifyToken }) => {
                   className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-main-0 peer"
                   defaultValue="00:00"
                   onChange={(e) => setFormData({ ...formData, start: e.target.value })}
-                  required
                 />
                 <label
                   htmlFor="start"
@@ -158,7 +156,6 @@ const AddActivity = ({ verifyToken }) => {
                   className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-main-0 peer"
                   defaultValue="00:00"
                   onChange={(e) => setFormData({ ...formData, end: e.target.value })}
-                  required
                 />
                 <label
                   htmlFor="end"
@@ -176,7 +173,6 @@ const AddActivity = ({ verifyToken }) => {
                 className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-main-0 peer"
                 placeholder=""
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
               />
               <label
                 htmlFor="name"
@@ -193,7 +189,6 @@ const AddActivity = ({ verifyToken }) => {
                 placeholder=""
                 rows="4"
                 onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
-                required
               ></textarea>
               <label
                 htmlFor="desc"
@@ -210,7 +205,6 @@ const AddActivity = ({ verifyToken }) => {
                 className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-main-0 peer"
                 placeholder=""
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                required
               />
               <label
                 htmlFor="location"
@@ -227,7 +221,8 @@ const AddActivity = ({ verifyToken }) => {
                 className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-main-0 peer"
                 placeholder=""
                 onChange={(e) => setFormData({ ...formData, outcome: e.target.value })}
-                required
+                max={100}
+                min={1}
               />
               <label
                 htmlFor="outcome"

@@ -73,5 +73,4 @@ typings/
 .serverless
 
 #uploads
-
-src/uploads/*
+public/uploads/*

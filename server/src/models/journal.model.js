@@ -34,7 +34,8 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER(3)
         },
         note: {
-            type: Sequelize.TEXT
+            type: Sequelize.TEXT,
+            defaultValue: null
         },
         image: {
             type: Sequelize.STRING

@@ -7,7 +7,7 @@ const authMiddleware = {
       const bearerHeader = req.headers['authorization'];
 
       if (!bearerHeader || !bearerHeader.startsWith('Bearer ')) {
-        throw {code: 403, message: 'Token tidak tersedia.'}
+        throw {code: 401, message: 'Token tidak sah.'}
       }
       
       const bearerToken = bearerHeader.split(' ')[1];

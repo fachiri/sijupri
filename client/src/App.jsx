@@ -11,6 +11,7 @@ import Activity from './pages/Main/Activitiy'
 import Gallery from './pages/Main/Gallery'
 import Profile from './pages/Main/Profile'
 import AddActivity from './pages/Second/AddActivity';
+import DetailActivity from './pages/Second/DetailActivity';
 // Admin
 import AdminDashboard from './pages/Admin/Dashboard';
 import Magang from './pages/Admin/Magang';
@@ -40,6 +41,7 @@ const App = () => {
         <Route path="/galeri" element={<Gallery verifyToken={verifyToken} />}/>
         <Route path="/profil" element={<Profile verifyToken={verifyToken} />}/>
         <Route path="/kegiatan/tambah" element={<AddActivity verifyToken={verifyToken} />}/>
+        <Route path="/kegiatan/:uuid" element={<DetailActivity verifyToken={verifyToken} />}/>
         {/* Admin */}
         <Route path="/administrator/dashboard" element={<AdminDashboard verifyToken={verifyToken} />}/>
         <Route path="/administrator/magang" element={<Magang verifyToken={verifyToken} />}/>
