@@ -16,6 +16,7 @@ import DetailActivity from './pages/Second/DetailActivity';
 import AdminDashboard from './pages/Admin/Dashboard';
 import Magang from './pages/Admin/Magang';
 import MagangDetail from './pages/Admin/MagangDetail';
+import MagangCreate from './pages/Admin/MagangCreate';
 
 const App = () => {
 
@@ -45,6 +46,7 @@ const App = () => {
         {/* Admin */}
         <Route path="/administrator/dashboard" element={<AdminDashboard verifyToken={verifyToken} />}/>
         <Route path="/administrator/magang" element={<Magang verifyToken={verifyToken} />}/>
+        <Route path="/administrator/magang/create" element={<MagangCreate verifyToken={verifyToken} />}/>
         <Route path="/administrator/magang/:fieldworkId" element={<MagangDetail verifyToken={verifyToken} />}/>
         {/* 404 */}
         <Route path="*" element={<p>There's nothing here: 404!</p>} />

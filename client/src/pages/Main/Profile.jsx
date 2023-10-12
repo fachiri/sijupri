@@ -6,7 +6,7 @@ import { Button, Modal } from 'flowbite-react'
 import { useEffect, useState } from 'react'
 import { HiOutlineExclamationCircle } from 'react-icons/hi'
 import axios from './../../utils/axios'
-import { randomString } from '../../utils/generate'
+import { serverUrl } from '../../utils/constants'
 
 const Profile = ({ verifyToken }) => {
   const [openModal, setOpenModal] = useState(undefined)
@@ -16,38 +16,54 @@ const Profile = ({ verifyToken }) => {
     idNumber: null,
     avatar: null
   })
-  const [avatarId, setAvatarId] = useState(localStorage.getItem('avatarId'))
+  const [avatars, setAvatars] = useState({
+    males: [],
+    females: []
+  });
   const navigate = useNavigate()
 
   useEffect(() => {
-    const getProfile = async () => {
+    getProfile()
+  }, [])
+
+  const getProfile = async () => {
+    try {
+      setIsLoading(true)
       const user = JSON.parse(localStorage.getItem('userData'))
-      const { data } = await axios.get(`/user/${user.uuid}/${user.role}`)
+      const { data } = await axios.get(`/user/${user.uuid}/role/${user.role}`)
       setProfile({
         name: data.data.name,
         idNumber: data.data.idNumber,
         avatar: data.data.avatar
       })
-    }
-    try {
-      setIsLoading(true)
-      getProfile()
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  const handleChangeAvatar = () => {
-    try {
-      setOpenModal(undefined)
-      setIsLoading(true)
-      const newAvatarId = randomString(10)
-      setAvatarId(newAvatarId)
-      localStorage.setItem('avatarId', newAvatarId)
     } finally {
       setIsLoading(false)
     }
   }
+  const handleChangeAvatar = async (avatar) => {
+    try {
+      setOpenModal(undefined)
+      setIsLoading(true)
+      const user = JSON.parse(localStorage.getItem('userData'))
+      await axios.put(`/user/${user.uuid}/avatar`, {
+        avatar
+      })
+      getProfile()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleGetAvatars = async () => {
+    try {
+      const avatars = await axios.get(`/auth/avatars`)
+      setAvatars(avatars.data.data)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setOpenModal('change-avatar')
+    }
+  };
 
   const handleLogout = () => {
     setOpenModal(undefined)
@@ -58,7 +74,7 @@ const Profile = ({ verifyToken }) => {
 
   return (
     <>
-      <MainLayout 
+      <MainLayout
         title="PROFIL"
         verifyToken={verifyToken}
         isLoading={isLoading}
@@ -69,7 +85,7 @@ const Profile = ({ verifyToken }) => {
               <h2 className="text-xl font-bold">{profile.name}</h2>
               <p className="text-lg font-medium">{profile.idNumber}</p>
             </div>
-            <img onClick={() => setOpenModal('change-image')} className="cursor-pointer w-20 h-20 rounded p-1 ring-2 border-4 border-white ring-gray-300 dark:ring-gray-500 bg-purple-200" src={profile.avatar ?? `https://robohash.org/${avatarId}`} alt="Profil" />
+            <img onClick={() => setOpenModal('change-image')} className="cursor-pointer w-20 h-20 rounded-full p-1 ring-2 border-4 border-white ring-gray-300 dark:ring-gray-500 bg-purple-200" src={serverUrl + profile.avatar} alt="" />
             <Modal
               show={openModal === 'change-image'}
               size="md"
@@ -82,9 +98,31 @@ const Profile = ({ verifyToken }) => {
                   <Button color="gray">
                     Upload Foto
                   </Button>
-                  <Button onClick={handleChangeAvatar} color="gray">
+                  <Button onClick={handleGetAvatars} color="gray">
                     Ganti Avatar
                   </Button>
+                </div>
+              </Modal.Body>
+            </Modal>
+            <Modal
+              show={openModal === 'change-avatar'}
+              size="md"
+              popup
+              onClose={() => setOpenModal(undefined)}
+            >
+              <Modal.Header />
+              <Modal.Body>
+                <div className='mb-5'>
+                  <div className='grid grid-cols-6 gap-3 pt-3 mb-5'>
+                    {avatars.males.map((e, idx) => (
+                      <img key={idx} onClick={() => handleChangeAvatar(e)} className="cursor-pointer w-10 h-10 rounded-full" src={serverUrl + e} alt="Avatar Male" />
+                    ))}
+                  </div>
+                  <div className='grid grid-cols-6 gap-3 pt-3'>
+                    {avatars.females.map((e, idx) => (
+                      <img key={idx} onClick={() => handleChangeAvatar(e)} className="cursor-pointer w-10 h-10 rounded-full" src={serverUrl + e} alt="Avatar Female" />
+                    ))}
+                  </div>
                 </div>
               </Modal.Body>
             </Modal>

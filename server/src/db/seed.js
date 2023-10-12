@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const db = require('./../models');
-const { randomString } = require('../utils/generate.utils');
+const { randomString, randomImage } = require('../utils/generate.utils');
 
 try {
   db.Role.findOrCreate({
@@ -24,7 +24,7 @@ try {
       name: 'Administrator',
       username: 'admin',
       password: bcrypt.hashSync('admin'),
-      avatar: `https://robohash.org/${randomString(10)}`
+      avatar: randomImage()
     }
   }).then((result) => {
     const user = result[0]
@@ -44,7 +44,7 @@ try {
       name: 'Muh. Fachry J.K. Luid',
       username: '531420003',
       password: bcrypt.hashSync('531420003'),
-      avatar: `https://robohash.org/${randomString(10)}`
+      avatar: randomImage()
     }
   }).then((result) => {
     const user = result[0]

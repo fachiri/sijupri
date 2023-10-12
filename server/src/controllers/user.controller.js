@@ -1,6 +1,7 @@
 const express = require('express')
 const db = require('./../models')
-const { getModelByRole } = require('./../utils/model.utils')
+const { getModelByRole } = require('./../utils/model.utils');
+const { randomImage } = require('../utils/generate.utils');
 
 const router = express.Router()
 
@@ -63,6 +64,35 @@ router.get('/:uuid/groups', async (req, res) => {
       success: true,
       message: 'Data berhasil ditemukan.',
       data: groups
+    });
+  } catch (error) {
+    res.status(error.code || 500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    });
+  }
+})
+
+router.put('/:uuid/avatar', async (req, res) => {
+  try {
+    const user = await db.User.findOne({
+      where: {
+        uuid: req.params.uuid
+      }
+    })
+
+    if(!user) {
+      throw {code: 404, message: 'Data not found'}
+    }
+
+    user.avatar = req.body.avatar
+    user.save()
+
+    res.status(200).json({
+      success: true,
+      message: 'Avatar berhasil diubah.',
+      data: user
     });
   } catch (error) {
     res.status(error.code || 500).json({

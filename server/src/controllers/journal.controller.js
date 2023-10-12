@@ -21,7 +21,7 @@ const upload = multer({ storage: storage })
 
 router.post('/add', [upload.single('file'), validateAddJournal], async (req, res) => {
   try {
-    const { userId, groupId, start, end, name, desc, location, outcome, note } = req.body
+    const { userId, groupId, date, start, end, name, desc, location, outcome, note } = req.body
     const { filename } = req.file || {}
 
     const user = await db.User.findOne({
@@ -35,7 +35,7 @@ router.post('/add', [upload.single('file'), validateAddJournal], async (req, res
     })
 
     const journal = await db.Journal.create({
-      start, end, name, desc, location, outcome, note,
+      date, start, end, name, desc, location, outcome, note,
       image: filename,
       groupId: group.id,
       studentId: user.student.id
