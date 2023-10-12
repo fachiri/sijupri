@@ -4,10 +4,12 @@ import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons'
 import SecondLayout from '../../layouts/SecondLayout';
 import Alert from '../../components/Alert';
 import axios from './../../utils/axios'
+import { Link } from 'react-router-dom';
 
 const AddActivity = ({ verifyToken }) => {
   const [formData, setFormData] = useState({
     groupId: '',
+    date: new Date().toLocaleDateString('en-CA'),
     start: '00:00',
     end: '00:00',
     name: '',
@@ -17,8 +19,7 @@ const AddActivity = ({ verifyToken }) => {
     note: '',
   })
   const [selectedFile, setSelectedFile] = useState(null)
-  const [showAlert, setShowAlert] = useState(false)
-  const [alertMessage, setShowAlertMessage] = useState(null)
+  const [showAlert, setShowAlert] = useState({ show: false, message: '' })
   const [userFieldWorks, setUserFieldWorks] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -33,8 +34,7 @@ const AddActivity = ({ verifyToken }) => {
       const { data } = await axios.get(`/user/${userData.uuid}/groups`)
       setUserFieldWorks(data.data)
     } catch (error) {
-      setShowAlertMessage(error.response?.data?.message || error.message)
-      setShowAlert(true)
+      setShowAlert({ show: true, message: error.response?.data?.message || error.message, color: 'failure' })
     } finally {
       setIsLoading(false)
     }
@@ -46,7 +46,7 @@ const AddActivity = ({ verifyToken }) => {
       setIsLoading(true)
 
       const formDataObject = new FormData();
-      const fields = ['groupId', 'start', 'end', 'name', 'desc', 'location', 'outcome', 'note'];
+      const fields = ['groupId', 'date', 'start', 'end', 'name', 'desc', 'location', 'outcome', 'note'];
 
       fields.forEach(field => {
         formDataObject.append(field, formData[field]);
@@ -55,19 +55,25 @@ const AddActivity = ({ verifyToken }) => {
       formDataObject.append('file', selectedFile)
       formDataObject.append('userId', JSON.parse(localStorage.getItem('userData')).uuid)
 
-      const response = await axios.post('journal/add', formDataObject, {
+      const { data } = await axios.post('journal/add', formDataObject, {
         headers: {
           "Content-Type": "multipart/form-data",
         }
       })
 
-      console.log(response)
+      const alertMessage = (
+        <span>
+          {data.message} <Link className="font-bold" to={`/kegiatan/${data.data.uuid}`}>Lihat</Link>
+        </span>
+      );
+
+      setShowAlert({ show: true, message: alertMessage, color: 'success' })
+      e.target.reset()
     } catch (error) {
-      setShowAlertMessage(error.response?.data?.message || error.message)
-      setShowAlert(true)
-      window.scrollTo(0, 0)
+      setShowAlert({ show: true, message: error.response?.data?.message || error.message, color: 'failure' })
     } finally {
       setIsLoading(false)
+      window.scrollTo(0, 0)
     }
   }
 
@@ -77,8 +83,7 @@ const AddActivity = ({ verifyToken }) => {
     if (file) {
       const allowedTypes = ["image/svg+xml", "image/png", "image/jpeg", "image/gif"]
       if (!allowedTypes.includes(file.type)) {
-        setShowAlertMessage('Jenis file tidak didukung. Pilih file dalam format SVG, PNG, JPG, atau GIF.')
-        setShowAlert(true)
+        setShowAlert({ show: true, message: 'Jenis file tidak didukung. Pilih file dalam format SVG, PNG, JPG, atau GIF.', color: 'failure' })
         e.target.value = null
         setSelectedFile(null)
         window.scrollTo(0, 0)
@@ -87,8 +92,7 @@ const AddActivity = ({ verifyToken }) => {
 
       const maxSize = 2 * 1024 * 1024
       if (file.size > maxSize) {
-        setShowAlertMessage('Ukuran file terlalu besar. Maksimal 2MB.')
-        setShowAlert(true)
+        setShowAlert({ show: true, message: 'Ukuran file terlalu besar. Maksimal 2MB.', color: 'failure' })
         e.target.value = null
         setSelectedFile(null)
         window.scrollTo(0, 0)
@@ -111,8 +115,8 @@ const AddActivity = ({ verifyToken }) => {
         verifyToken={verifyToken}
         isLoading={isLoading}
       >
-        {showAlert && <Alert color="failure" onDismiss={() => setShowAlert(false)} alertMessage={alertMessage} />}
-        <section className="mt-10">
+        {showAlert.show && <Alert color={showAlert.color} onDismiss={() => setShowAlert({ show: false })} alertMessage={showAlert.message} className="mb-5" />}
+        <section className="mt-5">
           <form encType="multipart/form-data" onSubmit={handleSubmit}>
             <div className="relative z-0 w-full mb-6 group">
               <label htmlFor="groupId" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-main-0 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Jenis Kegiatan</label>
@@ -131,6 +135,23 @@ const AddActivity = ({ verifyToken }) => {
                 ))}
               </select>
             </div>
+            <div className={`relative z-0 mb-6 group w-full`}>
+              <input
+                type="date"
+                name="date"
+                id="date"
+                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-main-0 peer"
+                placeholder=""
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                defaultValue={formData.date}
+              />
+              <label
+                htmlFor="date"
+                className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-main-0 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+              >
+                Tanggal
+              </label>
+            </div>
             <div className="grid grid-cols-2 gap-5">
               <div className="relative z-0 w-full mb-6 group">
                 <input
@@ -138,7 +159,7 @@ const AddActivity = ({ verifyToken }) => {
                   name="start"
                   id="start"
                   className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-main-0 peer"
-                  defaultValue="00:00"
+                  defaultValue={formData.start}
                   onChange={(e) => setFormData({ ...formData, start: e.target.value })}
                 />
                 <label
@@ -154,7 +175,7 @@ const AddActivity = ({ verifyToken }) => {
                   name="end"
                   id="end"
                   className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-main-0 peer"
-                  defaultValue="00:00"
+                  defaultValue={formData.end}
                   onChange={(e) => setFormData({ ...formData, end: e.target.value })}
                 />
                 <label
@@ -221,8 +242,6 @@ const AddActivity = ({ verifyToken }) => {
                 className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-main-0 peer"
                 placeholder=""
                 onChange={(e) => setFormData({ ...formData, outcome: e.target.value })}
-                max={100}
-                min={1}
               />
               <label
                 htmlFor="outcome"

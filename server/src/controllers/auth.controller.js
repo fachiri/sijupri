@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 const { secret } = require('./../config/keys')
 const jwt = require('jsonwebtoken');
 const { verifyToken } = require('./../middlewares/auth.middleware.js')
+const fs = require('fs');
+const path = require('path');
 
 const router = express.Router()
 
@@ -38,7 +40,7 @@ router.post('/login', async (req, res) => {
       where: {
         [Op.or]: [
           { [field]: username },
-          { '$User.username$': username },
+          { '$user.username$': username },
         ]
       },
       include: { model: db.User }
@@ -99,6 +101,29 @@ router.get('/verify-token/:role', verifyToken, async (req, res) => {
       success: true,
       message: 'Akses berhasil.',
       data: {}
+    })
+  } catch (error) {
+    res.status(error.code || 500).send({
+      success: false,
+      message: error.message,
+      data: {}
+    });
+  }
+})
+
+router.get('/avatars', async (req, res) => { 
+  try {
+    const males = fs.readdirSync(path.join(__dirname, '../../public/assets/profile/male'));
+    const females = fs.readdirSync(path.join(__dirname, '../../public/assets/profile/female'));
+    const data = {
+      males: males.map(e => `/assets/profile/male/${e}`),
+      females: females.map(e => `/assets/profile/female/${e}`)
+    }
+
+    res.status(200).send({
+      success: true,
+      message: 'Avatar berhasil ditemukan',
+      data
     })
   } catch (error) {
     res.status(error.code || 500).send({

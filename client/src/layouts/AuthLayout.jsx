@@ -18,11 +18,15 @@ const AuthLayout = ({ children, verifyToken, isLoading }) => {
     checkToken();
   }, [])
 
+  if (isLoading) {
+    <Loader />
+  }
+
   return (
     <>
       {isLoading && <Loader />}
       <div className="bg-main-0">
-        <div className="flex flex-col items-center justify-start sm:justify-center h-screen w-full max-w-lg mx-auto px-5 sm:px-2">
+        <div className="flex flex-col items-center justify-start sm:justify-center min-h-screen pb-10 w-full max-w-lg mx-auto px-5 sm:px-2">
           <div className="flex justify-center items-center mb-10 mt-10 sm:mt-0">
             <img src={logo} alt="S I J U P R I" className="h-10" />
           </div>

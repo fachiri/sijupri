@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const generateUtils = {
   randomString: (length) => {
     const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -15,6 +18,16 @@ const generateUtils = {
     const uniqueSuffix = `${Date.now()}${Math.round(Math.random() * 1E9)}`
 
     return `${uniqueSuffix}.${extension}`
+  },
+  randomImage: () => {
+    const genders = ['male', 'female'];
+    const randomGender = genders[Math.floor(Math.random() * genders.length)];
+    const imageFolder = path.join(__dirname, '../../public', 'assets', 'profile', randomGender);
+    const files = fs.readdirSync(imageFolder);
+    const randomImageFile = files[Math.floor(Math.random() * files.length)];
+    const imagePath = `/assets/profile/${randomGender}/${randomImageFile}`
+    
+    return imagePath;
   }
 }
 

@@ -3,7 +3,8 @@ const db = require('../models')
 const multer = require('multer');
 const xlsx = require('xlsx');
 const bcrypt = require('bcryptjs');
-const { randomString } = require('../utils/generate.utils');
+const { randomString, randomImage } = require('../utils/generate.utils');
+const { validateAddFieldwork } = require('../middlewares/journal.middleware');
 
 const router = express.Router()
 
@@ -38,7 +39,7 @@ router.get('/fieldwork', async (req, res) => {
   }
 });
 
-router.post('/fieldwork', async (req, res) => {
+router.post('/fieldwork', validateAddFieldwork,async (req, res) => {
   try {
     const { name, type, periode } = req.body
 
@@ -87,6 +88,69 @@ router.put('/fieldwork/:uuid', async (req, res) => {
       success: true,
       message: 'Data berhasil diedit.',
       data: fieldwork
+    });
+  } catch (error) {
+    res.status(error.code || 500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    });
+  }
+});
+
+router.get('/fieldwork/:uuid', async (req, res) => {
+  try {
+    const { uuid } = req.params
+
+    const fieldwork = await db.Fieldwork.findOne({
+      where: {
+        uuid
+      },
+      attributes: {
+        exclude: ['id']
+      }
+    })
+
+    if (!fieldwork) {
+      throw { code: 404, message: 'Data tidak ditemukan.' }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil ditemukan',
+      data: fieldwork
+    });
+  } catch (error) {
+    res.status(error.code || 500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    });
+  }
+});
+
+router.delete('/fieldwork/:uuid', async (req, res) => {
+  try {
+    const fieldwork = await db.Fieldwork.findOne({
+      where: {
+        uuid: req.params.uuid
+      }
+    })
+
+    if(!fieldwork) {
+      throw {code: 404, message: 'Data not found'}
+    }
+
+    await db.Fieldwork.destroy({
+      where: {
+        uuid: req.params.uuid
+      }
+    })
+
+    res.status(200).json({
+      success: true,
+      message: `Data "${fieldwork.name} Periode ${fieldwork.periode}" berhasil dihapus`,
+      data: []
     });
   } catch (error) {
     res.status(error.code || 500).json({
@@ -151,6 +215,16 @@ router.post('/groups/import', upload.single('file'), async (req, res) => {
       throw { code: 400, message: 'Fieldwork harus diisi.' };
     }
 
+    const groups = await db.Group.findAll()
+
+    groups.forEach(async (e) => {
+      await db.Group.destroy({
+        where: {
+          id: e.id
+        }
+      })
+    });
+
     const fieldwork = await db.Fieldwork.findOne({
       where: {
         uuid: fieldworkUuid
@@ -159,21 +233,12 @@ router.post('/groups/import', upload.single('file'), async (req, res) => {
     })
 
     const fileBuffer = req.file.buffer;
-
-    // Baca file Excel menggunakan xlsx
     const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
-
-    // Mendapatkan daftar nama sheet dalam file Excel
     const sheetNames = workbook.SheetNames;
-
-    // Mengakses sheet pertama
     const firstSheetName = sheetNames[0];
     const worksheet = workbook.Sheets[firstSheetName];
-
-    // Mengkonversi isi sheet ke bentuk objek JSON
     const data = xlsx.utils.sheet_to_json(worksheet);
 
-    // Insert data
     let groupId
     for (const e of data) {
       let student = await db.Student.findOne({
@@ -188,7 +253,7 @@ router.post('/groups/import', upload.single('file'), async (req, res) => {
           name: e.NAMA,
           username: e.NIM,
           password: bcrypt.hashSync(e.NIM.toString()),
-          avatar: `https://robohash.org/${randomString(10)}`,
+          avatar: randomImage(),
         });
         student = await db.Student.create({
           nim: e.NIM,
@@ -217,8 +282,8 @@ router.post('/groups/import', upload.single('file'), async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Data berhasil ditambahkan.',
-      data: {}, // Mengembalikan data siswa yang ditambahkan
+      message: 'Data berhasil di import',
+      data: {}
     });
 
   } catch (error) {

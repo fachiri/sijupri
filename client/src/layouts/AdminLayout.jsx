@@ -6,8 +6,9 @@ import { faUniversity, faBriefcase, faRightFromBracket, faGauge, faCircleUser, f
 import Logo from './../assets/logo-circle.svg'
 import { Button, Modal } from 'flowbite-react'
 import { HiOutlineExclamationCircle } from 'react-icons/hi'
+import Loader from '../components/Loader'
 
-const AdminLayout = ({ children, verifyToken }) => {
+const AdminLayout = ({ children, verifyToken, isLoading }) => {
   const [open, setOpen] = useState(true)
   const [openModal, setOpenModal] = useState(undefined)
   const location = useLocation()
@@ -40,11 +41,12 @@ const AdminLayout = ({ children, verifyToken }) => {
 
   return (
     <>
+      {isLoading && <Loader />}
       <div
         className={`${open ? 'w-60' : 'w-fit'
           } sticky top-0 left-0 h-screen bg-white duration-300 border-r dark:border-gray-600 p-5 dark:bg-slate-800 z-40`}
       >
-        <Link to='/'>
+        <button onClick={() => setOpen(!open)}>
           <div className={`flex ${open && 'gap-x-4'} items-center`}>
             <img src={Logo} alt='Logo' className='ml-2 h-8 rounded' />
             {open && (
@@ -53,7 +55,7 @@ const AdminLayout = ({ children, verifyToken }) => {
               </span>
             )}
           </div>
-        </Link>
+        </button>
 
         <ul className='pt-6'>
           {Menus.map((menu, index) => (
@@ -99,9 +101,8 @@ const AdminLayout = ({ children, verifyToken }) => {
             } py-5 bg-main-0 w-full z-30`}
         >
           <BsArrowLeftCircle
-            onClick={() => setOpen(!open)}
-            className={`${!open && 'rotate-180'
-              } text-3xl text-secondary-0 rounded-full cursor-pointer dark:text-gray-400 dark:bg-gray-800`}
+            onClick={() => navigate(-1)}
+            className="text-3xl text-secondary-0 rounded-full cursor-pointer dark:text-gray-400 dark:bg-gray-800"
           />
         </div>
 
